@@ -1,0 +1,73 @@
+/*Question 1 : What is the most relevant Artist, 
+regarding the first quartile in GenreId?
+
+WITH genre_artist AS(SELECT * FROM Album 
+JOIN Artist ON Album.ArtistId = Artist.ArtistId
+JOIN Track ON Track.AlbumId = Album.AlbumId
+JOIN Genre ON Genre.GenreId = Track.GenreId 
+)
+SELECT Name,GenreId, COUNT(*) occurances, NTILE(4) OVER() AS quartile
+FROM genre_artist 
+GROUP BY 2 ORDER BY quartile ASC
+*/
+
+/*Question 2 : As longer (in milliseconds) is a track, there is more revenue?  
+SELECT Name, Max(Milliseconds), total,NTILE(5) OVER(ORDER BY Milliseconds DESC ) AS Quintiles FROM Track
+JOIN InvoiceLine 
+ON Track.TrackId = InvoiceLine.TrackId
+JOIN Invoice 
+ON InvoiceLine.InvoiceId = Invoice.InvoiceId 
+
+SELECT Name, Min(Milliseconds), total,NTILE(5) OVER(ORDER BY Milliseconds DESC ) AS Quintiles FROM Track
+JOIN InvoiceLine 
+ON Track.TrackId = InvoiceLine.TrackId
+JOIN Invoice 
+ON InvoiceLine.InvoiceId = Invoice.InvoiceId 
+
+SELECT Name, avg(Milliseconds), avg(total),NTILE(5) OVER(ORDER BY Milliseconds DESC ) AS Quintiles FROM Track
+JOIN InvoiceLine 
+ON Track.TrackId = InvoiceLine.TrackId
+JOIN Invoice 
+ON InvoiceLine.InvoiceId = Invoice.InvoiceId
+
+SELECT Name, Milliseconds, total FROM Track
+JOIN InvoiceLine 
+ON Track.TrackId = InvoiceLine.TrackId
+JOIN Invoice 
+ON InvoiceLine.InvoiceId = Invoice.InvoiceId
+GROUP BY 2 ORDER BY 2 ASC*/
+
+
+/*
+MEDIAN DOES NOT WORk HELP!!!!
+WITH tabletrack AS
+(SELECT Max(Milliseconds) max_millisec, 
+(SELECT Min(Milliseconds) max_millisec  FROM Track
+JOIN InvoiceLine 
+ON Track.TrackId = InvoiceLine.TrackId
+JOIN Invoice 
+ON InvoiceLine.InvoiceId = Invoice.InvoiceId 
+) min_millisec  
+FROM Track
+JOIN InvoiceLine 
+ON Track.TrackId = InvoiceLine.TrackId
+JOIN Invoice 
+ON InvoiceLine.InvoiceId = Invoice.InvoiceId
+)
+SELECT * ,percent_rank(0.5) OVER( PARTITION BY max_millisec,min_millisec ORDER BY 1,2 ) AS median FROM tabletrack
+*/
+
+
+/*Question 3 : What employee generate better revenue to the business ?
+SELECT Employee.EmployeeId Id_employee ,total*COUNT(*) AS total_sales FROM Employee
+JOIN Customer 
+ON Employee.EmployeeId = Customer.SupportRepId
+JOIN Invoice 
+ON Invoice.CustomerId = Customer.CustomerId 
+GROUP BY 1 ORDER BY 1 DESC*/
+
+
+/*Question 4 : How truthful the Total Value Invoice table of the chinook database is, using “The Benford Law”, related by their customers?
+SELECT substr(Total,instr(Total,'.'),-1) As digits, COUNT(*) AS occurance FROM Customer
+JOIN Invoice ON Customer.CustomerId = Invoice.CustomerId 
+GROUP BY 1 ORDER BY digits ASC */
